@@ -5,7 +5,8 @@ RSpec.describe 'Status requests' do
     it 'returns a status message' do
       get('/api/v1/status')
       json = JSON.parse(response.body)
-      expect(json['status']).to eq('ok')  
+      expect(json['status']).to eq('ok')
+      expect(response.status).to eq(200)
     end
   end
 end
