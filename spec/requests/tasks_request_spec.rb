@@ -11,7 +11,7 @@ RSpec.describe 'Tasks request', type: :request do
 
       json = JSON.parse(response.body)
       tasks = Task.where(user_id: user.id).as_json(except: %i[created_at updated_at])
-      expect(json['tasks']).to eq(JSON.parse(tasks.to_json))
+      expect(json['tasks']).to eq(tasks)
       expect(json['tasks'].count).to eq(2)
     end
 
