@@ -6,7 +6,7 @@ RSpec.describe 'Tasks request', type: :request do
 
     it 'returns an array of tasks related to the user' do
       2.times { create(:task, user: user) }
-      2.times { create(:task) }
+      1.times { create(:task) }
       get '/api/v1/tasks', params: { user_id: user.id }
 
       json = JSON.parse(response.body)
@@ -17,7 +17,7 @@ RSpec.describe 'Tasks request', type: :request do
 
     it 'returns an empty array of tasks when user_id is not specified' do
       2.times { create(:task, user: user) }
-      2.times { create(:task) }
+      1.times { create(:task) }
       get '/api/v1/tasks'
 
       json = JSON.parse(response.body)
