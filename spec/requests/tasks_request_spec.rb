@@ -24,4 +24,19 @@ RSpec.describe 'Tasks request', type: :request do
       expect(json['tasks']).to be_empty
     end
   end
+
+  describe 'GET /api/v1/tasks/:id' do
+    let(:task) { create(:task) }
+
+    it 'returns a task' do
+      get "/api/v1/tasks/#{task.id}"
+
+      json = JSON.parse(response.body)
+      expect(json['task']).to eq(task.as_json(except: %i[created_at updated_at]))
+    end
+
+    it 'returns 404 if not found' do
+      expect { get '/api/v1/tasks/1' }.to raise_error(ActiveRecord::RecordNotFound)
+    end  
+  end
 end

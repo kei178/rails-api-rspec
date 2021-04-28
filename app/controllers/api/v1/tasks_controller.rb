@@ -5,4 +5,10 @@ class Api::V1::TasksController < ApplicationController
                 .as_json(except: %i[created_at updated_at])
     render json: { 'tasks' => tasks }
   end
+
+  def show
+    task = Task.find(params[:id])
+               .as_json(except: %i[created_at updated_at])
+    render json: { 'task' => task }
+  end
 end
