@@ -39,4 +39,40 @@ RSpec.describe 'Tasks request', type: :request do
       expect { get '/api/v1/tasks/1' }.to raise_error(ActiveRecord::RecordNotFound)
     end  
   end
+
+  describe 'POST /api/v1/tasks' do
+    it 'creates a task' do
+      user = create(:user)
+      params = {
+        task: {
+          user_id:      user.id,
+          title:        'demo task title',
+          is_completed: false
+        }
+      }.to_json
+
+      post '/api/v1/tasks', 
+        params: params, 
+        headers: { 'CONTENT_TYPE': 'application/json' }
+
+      expect(response.status).to eq(200)
+      expect(user.tasks.count).to eq(1)
+    end
+
+    it 'returns 422 error if params is invalid' do
+      params = {
+        task: {
+          user_id:      1,
+          title:        'demo task title',
+          is_completed: false
+        }
+      }.to_json
+
+      post '/api/v1/tasks', 
+        params: params, 
+        headers: { 'CONTENT_TYPE': 'application/json' }
+
+      expect(response.status).to eq(422)
+    end
+  end
 end

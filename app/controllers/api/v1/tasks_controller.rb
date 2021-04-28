@@ -11,4 +11,24 @@ class Api::V1::TasksController < ApplicationController
                .as_json(except: %i[created_at updated_at])
     render json: { 'task' => task }
   end
+
+  def create
+    task = Task.new(task_params)
+    if task.save
+      render json: { 'status' => 'ok' }
+    else
+      render json: { 
+        'status' => 'ng', 
+        'message': task.errors.full_messages   
+      }, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def task_params
+    params.require(:task).permit(%i[
+      user_id title is_completed
+    ])
+  end
 end
