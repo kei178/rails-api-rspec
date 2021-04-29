@@ -6,22 +6,22 @@ RSpec.describe 'Tasks request', type: :request do
 
     it 'returns an array of tasks related to the user' do
       2.times { create(:task, user: user) }
-      1.times { create(:task) }
+      create(:task)
       get '/api/v1/tasks', params: { user_id: user.id }
 
       json = JSON.parse(response.body)
-      tasks = Task.where(user_id: user.id).as_json(except: %i[created_at updated_at])
-      expect(json['tasks']).to eq(tasks)
-      expect(json['tasks'].count).to eq(2)
+      tasks = Task.where(user_id: user.id)
+      expect(response.body).to eq(TaskSerializer.new(tasks).serialized_json)
+      expect(json['data'].count).to eq(2)
     end
 
     it 'returns an empty array of tasks when user_id is not specified' do
       2.times { create(:task, user: user) }
-      1.times { create(:task) }
+      create(:task)
       get '/api/v1/tasks'
 
       json = JSON.parse(response.body)
-      expect(json['tasks']).to be_empty
+      expect(json['data']).to be_empty
     end
   end
 
@@ -31,13 +31,12 @@ RSpec.describe 'Tasks request', type: :request do
     it 'returns a task' do
       get "/api/v1/tasks/#{task.id}"
 
-      json = JSON.parse(response.body)
-      expect(json['task']).to eq(task.as_json(except: %i[created_at updated_at]))
+      expect(response.body).to eq(TaskSerializer.new(task).serialized_json)
     end
 
     it 'returns 404 if not found' do
       expect { get '/api/v1/tasks/1' }.to raise_error(ActiveRecord::RecordNotFound)
-    end  
+    end
   end
 
   describe 'POST /api/v1/tasks' do
@@ -45,15 +44,15 @@ RSpec.describe 'Tasks request', type: :request do
       user = create(:user)
       params = {
         task: {
-          user_id:      user.id,
-          title:        'demo task title',
+          user_id: user.id,
+          title: 'demo task title',
           is_completed: false
         }
       }.to_json
 
-      post '/api/v1/tasks', 
-        params: params, 
-        headers: { 'CONTENT_TYPE': 'application/json' }
+      post '/api/v1/tasks',
+           params: params,
+           headers: { 'CONTENT_TYPE': 'application/json' }
 
       expect(response.status).to eq(200)
       expect(user.tasks.count).to eq(1)
@@ -62,15 +61,15 @@ RSpec.describe 'Tasks request', type: :request do
     it 'returns 422 error if params is invalid' do
       params = {
         task: {
-          user_id:      1,
-          title:        'demo task title',
+          user_id: 1,
+          title: 'demo task title',
           is_completed: false
         }
       }.to_json
 
-      post '/api/v1/tasks', 
-        params: params, 
-        headers: { 'CONTENT_TYPE': 'application/json' }
+      post '/api/v1/tasks',
+           params: params,
+           headers: { 'CONTENT_TYPE': 'application/json' }
 
       expect(response.status).to eq(422)
     end
@@ -78,17 +77,17 @@ RSpec.describe 'Tasks request', type: :request do
 
   describe 'PUT /api/v1/tasks/:id' do
     let(:task) { create(:task) }
-    let(:params) { 
+    let(:params) do
       {
         task: {
           title: 'updated demo task title'
         }
       }.to_json
-    }
+    end
     it 'updates a task' do
       put "/api/v1/tasks/#{task.id}",
-        params: params,
-        headers: { 'CONTENT_TYPE': 'application/json' }
+          params: params,
+          headers: { 'CONTENT_TYPE': 'application/json' }
 
       task.reload
       expect(response.status).to eq(200)
@@ -96,11 +95,11 @@ RSpec.describe 'Tasks request', type: :request do
     end
 
     it 'returns 404 if not found' do
-      expect { 
+      expect do
         put '/api/v1/tasks/1',
-          params: params,
-          headers: { 'CONTENT_TYPE': 'application/json' }
-      }.to raise_error(ActiveRecord::RecordNotFound)
-    end    
-  end  
+            params: params,
+            headers: { 'CONTENT_TYPE': 'application/json' }
+      end.to raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
 end
