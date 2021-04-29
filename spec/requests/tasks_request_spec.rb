@@ -75,4 +75,32 @@ RSpec.describe 'Tasks request', type: :request do
       expect(response.status).to eq(422)
     end
   end
+
+  describe 'PUT /api/v1/tasks/:id' do
+    let(:task) { create(:task) }
+    let(:params) { 
+      {
+        task: {
+          title: 'updated demo task title'
+        }
+      }.to_json
+    }
+    it 'updates a task' do
+      put "/api/v1/tasks/#{task.id}",
+        params: params,
+        headers: { 'CONTENT_TYPE': 'application/json' }
+
+      task.reload
+      expect(response.status).to eq(200)
+      expect(task.title).to eq('updated demo task title')
+    end
+
+    it 'returns 404 if not found' do
+      expect { 
+        put '/api/v1/tasks/1',
+          params: params,
+          headers: { 'CONTENT_TYPE': 'application/json' }
+      }.to raise_error(ActiveRecord::RecordNotFound)
+    end    
+  end  
 end
