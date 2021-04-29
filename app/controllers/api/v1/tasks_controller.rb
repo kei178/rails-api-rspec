@@ -27,7 +27,7 @@ class Api::V1::TasksController < ApplicationController
   def update
     task = Task.find(params[:id])
     if task.update(task_params)
-    render json: { 'status': 'ok' }
+      render json: { 'status': 'ok' }
     else
       render json: { 
         'status': 'ng', 
